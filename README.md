@@ -1,10 +1,10 @@
-# ? 智慧收费站综合检测系统
+  ? 智慧收费站综合检测系统
 
 基于深度学习的双子系统综合项目，涵盖**卡车轴数自动分类**与**安全帽佩戴实时检测**两大功能模块。系统运行于树莓派5嵌入式平台，结合CSI摄像头、GPIO硬件外设，实现从数据采集、模型训练到现场部署的完整AI落地流程。
 
 ---
 
-## ? 系统整体架构流程图
+   ? 系统整体架构流程图
 
 ```mermaid
 flowchart TB
@@ -38,7 +38,7 @@ flowchart TB
 
 ---
 
-## ?? 项目目录结构
+  ?? 项目目录结构
 
 ```
 truck_project/
@@ -86,9 +86,9 @@ truck_project/
 
 ---
 
-## ? 子系统一：卡车轴数自动分类
+ ? 子系统一：卡车轴数自动分类
 
-### 工作流程
+ 工作流程
 
 ```mermaid
 flowchart LR
@@ -104,7 +104,7 @@ flowchart LR
     Eval --> Deploy[? 部署上线]
 ```
 
-### 1. 数据集准备（分类）
+ 1. 数据集准备（分类）
 
 原始图像存放在 `raw_data/` 下，按轴数分为 5 个类别：
 
@@ -142,7 +142,7 @@ datasets/toll_axle_cls/
     └── ...
 ```
 
-### 2. 模型训练
+ 2. 模型训练
 
 基于 YOLOv8n-cls 预训练模型进行迁移学习：
 
@@ -162,7 +162,7 @@ python scripts/train_yolo_cls.py
 
 训练输出保存在 `runs/axle_cls_baseline/`，包含 `weights/best.pt`（最佳模型）和训练曲线。
 
-### 3. 测试集评估
+ 3. 测试集评估
 
 ```bash
 python scripts/eval_test.py
@@ -170,7 +170,7 @@ python scripts/eval_test.py
 
 输出 top1 和 top5 准确率指标，结果保存至 `runs/axle_cls_test_eval/`。
 
-### 4. 错误样本分析
+ 4. 错误样本分析
 
 ```bash
 python scripts/analyze_test_errors.py
@@ -181,7 +181,7 @@ python scripts/analyze_test_errors.py
 - 将错分图片复制到 `analysis/test_error_analysis/wrong_predictions/`
 - 文件名包含 `真实类别__预测类别__置信度` 便于人工复盘
 
-### 5. 导出ONNX模型
+ 5. 导出ONNX模型
 
 ```bash
 python scripts/export_onnx.py
@@ -189,7 +189,7 @@ python scripts/export_onnx.py
 
 将训练好的 `best.pt` 导出为 ONNX 格式（opset=12, imgsz=640），便于跨平台部署。
 
-### 6. OBU模拟数据库查询
+ 6. OBU模拟数据库查询
 
 系统包含一个模拟的OBU（车载单元）数据库，用于模拟收费站场景下的车辆登记信息核验。
 
@@ -219,9 +219,9 @@ python scripts/query_obu.py
 
 ---
 
-## ? 子系统二：安全帽佩戴实时检测
+ ? 子系统二：安全帽佩戴实时检测
 
-### 工作流程
+ 工作流程
 
 ```mermaid
 flowchart TB
@@ -245,7 +245,7 @@ flowchart TB
     Web --> Stream[? MJPEG 视频流推送到浏览器]
 ```
 
-### GPIO 状态机详解
+ GPIO 状态机详解
 
 系统通过树莓派GPIO引脚控制外部硬件，实现三种工作状态：
 
@@ -268,7 +268,7 @@ stateDiagram-v2
 
 > **舵机PWM参数**：频率50Hz，位置A占空比2.5%（约0°），位置B占空比7.5%（约90°），动作后150ms停止PWM信号以防止抖动。
 
-### 环境要求
+ 环境要求
 
 | 类别 | 规格 |
 |------|------|
@@ -276,7 +276,7 @@ stateDiagram-v2
 | **Python** | 3.13 |
 | **依赖库** | PyTorch, Ultralytics, OpenCV, Flask, Picamera2, gpiozero, lgpio |
 
-### 快速开始
+ 快速开始
 
   1. 激活虚拟环境
 
@@ -328,7 +328,7 @@ bash stop.sh
 
 ---
 
-### Web仪表盘功能介绍
+ Web仪表盘功能介绍
 
 | 模块 | 说明 |
 |------|------|
@@ -338,7 +338,7 @@ bash stop.sh
 | ? **时间线图表** | 10秒间隔的检测趋势折线图（最多保留12个时间点） |
 | ? **检测日志** | 实时打印 `[HH:MM:SS] 检测类别 (置信度)`，状态切换时触发记录，最多100条 |
 
-### API接口一览
+ API接口一览
 
 | 路由 | 方法 | 返回格式 | 说明 |
 |------|------|----------|------|
@@ -349,7 +349,7 @@ bash stop.sh
 | `/timeline` | GET | JSON | 时间线数据 `{labels, hat, person}` |
 | `/logs` | GET | JSON | 检测日志列表 `[{time, label, conf}, ...]` |
 
-### 其他脚本使用
+ 其他脚本使用
 
   单张图片检测
 
@@ -385,7 +385,7 @@ python scripts/export_onnx.py
 
 ---
 
-## ? 双系统联动展望
+ ? 双系统联动展望
 
 理论上，两个子系统可以在收费站场景中协同工作：
 
@@ -397,7 +397,7 @@ python scripts/export_onnx.py
 
 ---
 
-## ? 常见问题排查
+ ? 常见问题排查
 
 | 问题 | 原因 | 解决方案 |
 |------|------|----------|
