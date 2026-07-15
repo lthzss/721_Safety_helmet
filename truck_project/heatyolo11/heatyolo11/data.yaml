@@ -1,0 +1,10 @@
+# dataset path
+path: G:/aHeat/VOC2028
+train: G:/aHeat/VOC2028/dataset/images/train
+val: G:/aHeat/VOC2028/dataset/images/val
+
+# number of classes
+nc: 2
+
+# class names
+names: ['hat', 'person']

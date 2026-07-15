@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>安全帽佩戴检测系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background-color: #f4f6f8;
+            color: #222;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 30px;
+            font-size: 36px;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+        }
+
+        .video-box {
+            margin-bottom: 20px;
+        }
+
+        .video-box img {
+            width: 100%;
+            max-width: 640px;
+            aspect-ratio: 4 / 3;
+            object-fit: contain;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+
+        .info-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: #eef3f8;
+            padding: 15px 25px;
+            border-radius: 10px;
+            min-width: 180px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .label-title {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .label-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+
+        .bottom-panel {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .chart-box {
+            flex: 1;
+            min-width: 400px;
+            background: #f8fafc;
+            border: 1px solid #d9e2ec;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .chart-box h3 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .chart-box canvas {
+            max-height: 320px;
+        }
+
+        .log-box {
+            flex: 1;
+            min-width: 300px;
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .log-box h3 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            color: #cdd6f4;
+        }
+
+        .log-list {
+            max-height: 320px;
+            overflow-y: auto;
+            font-size: 14px;
+            font-family: "Courier New", monospace;
+            color: #a6e3a1;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #313244;
+        }
+
+        .log-time {
+            color: #89b4fa;
+        }
+
+        .log-label {
+            color: #f9e2af;
+            font-weight: bold;
+        }
+
+        .log-conf {
+            color: #a6adc8;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>安全帽佩戴检测系统</h1>
+
+    <div class="container">
+        <div class="video-box">
+            <img src="{{ url_for('video_feed') }}" alt="实时视频流">
+        </div>
+
+        <div class="info-panel">
+            <div class="info-card">
+                <div class="label-title">当前检测</div>
+                <div class="label-value" id="label">waiting</div>
+            </div>
+            <div class="info-card">
+                <div class="label-title">置信度</div>
+                <div class="label-value" id="conf">0.0000</div>
+            </div>
+            <div class="info-card">
+                <div class="label-title">当前 FPS</div>
+                <div class="label-value" id="fps">0.00</div>
+            </div>
+            <div class="info-card">
+                <div class="label-title">系统状态</div>
+                <div class="label-value" id="status">running</div>
+            </div>
+        </div>
+
+        <div class="bottom-panel">
+            <div class="chart-box">
+                <h3>今日检测统计</h3>
+                <canvas id="statsChart"></canvas>
+            </div>
+            <div class="log-box">
+                <h3>检测日志</h3>
+                <div class="log-list" id="logList">
+                    <div style="color:#6c7086;">等待检测中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const labels = ["hat", "person"];
+        const colors = ["#2ecc71", "#e74c3c"];
+
+        const ctxBar = document.getElementById("statsChart").getContext("2d");
+        const barChart = new Chart(ctxBar, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "检测数量",
+                    data: [0, 0],
+                    backgroundColor: colors,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, precision: 0 }
+                    }
+                }
+            }
+        });
+
+        async function updateResult() {
+            try {
+                const response = await fetch("/result");
+                const data = await response.json();
+                document.getElementById("label").innerText = data.label;
+                document.getElementById("conf").innerText = data.conf;
+                document.getElementById("fps").innerText = data.fps;
+                document.getElementById("status").innerText = data.status;
+            } catch (error) {
+                console.error("获取检测结果失败：", error);
+            }
+        }
+
+        async function updateStats() {
+            try {
+                const response = await fetch("/stats");
+                const data = await response.json();
+                barChart.data.datasets[0].data = labels.map(l => data[l] || 0);
+                barChart.update();
+            } catch (error) {
+                console.error("获取统计数据失败：", error);
+            }
+        }
+
+        async function updateLogs() {
+            try {
+                const response = await fetch("/logs");
+                const entries = await response.json();
+                const logList = document.getElementById("logList");
+                if (entries.length === 0) {
+                    logList.innerHTML = '<div style="color:#6c7086;">等待检测中...</div>';
+                    return;
+                }
+                logList.innerHTML = entries.map(e =>
+                    `<div class="log-entry">
+                        <span class="log-time">[${e.time}]</span>
+                        <span class="log-label">${e.label}</span>
+                        <span class="log-conf">(conf: ${e.conf})</span>
+                    </div>`
+                ).join("");
+            } catch (error) {
+                console.error("获取日志失败：", error);
+            }
+        }
+
+        setInterval(updateResult, 500);
+        setInterval(updateStats, 2000);
+        setInterval(updateLogs, 2000);
+    </script>
+</body>
+</html>
