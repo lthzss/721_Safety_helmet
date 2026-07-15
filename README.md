@@ -193,7 +193,7 @@ python scripts/export_onnx.py
 
 系统包含一个模拟的OBU（车载单元）数据库，用于模拟收费站场景下的车辆登记信息核验。
 
-#### 初始化数据库
+  初始化数据库
 
 ```bash
 python scripts/init_db.py
@@ -209,7 +209,7 @@ python scripts/init_db.py
 | OBU0007 - OBU0008 | axle5 | 五轴货车 |
 | OBU0009 - OBU0010 | non_truck | 非卡车 |
 
-#### 查询OBU
+  查询OBU
 
 ```bash
 python scripts/query_obu.py
@@ -278,14 +278,14 @@ stateDiagram-v2
 
 ### 快速开始
 
-#### 1. 激活虚拟环境
+  1. 激活虚拟环境
 
 ```bash
 cd ~/721/truck_project/truck_project
 source venv/bin/activate
 ```
 
-#### 2. 释放摄像头资源（每次重启后仅需执行一次）
+  2. 释放摄像头资源（每次重启后仅需执行一次）
 
 Pipewire桌面服务默认占用CSI摄像头，需要先停掉释放设备：
 
@@ -293,7 +293,7 @@ Pipewire桌面服务默认占用CSI摄像头，需要先停掉释放设备：
 systemctl --user stop pipewire.socket pipewire.service wireplumber.service
 ```
 
-#### 3. 方式一：一键启动（推荐，后台运行）
+  3. 方式一：一键启动（推荐，后台运行）
 
 ```bash
 bash start.sh
@@ -306,13 +306,13 @@ bash start.sh
 访问 http://192.168.x.x:5000
 ```
 
-#### 4. 方式二：手动启动（调试用）
+ 4. 方式二：手动启动（调试用）
 
 ```bash
 python web_demo/app.py
 ```
 
-#### 5. 浏览器访问
+  5. 浏览器访问
 
 在同一局域网任意设备打开：
 
@@ -320,7 +320,7 @@ python web_demo/app.py
 http://<树莓派IP>:5000
 ```
 
-#### 6. 停止服务
+  6. 停止服务
 
 ```bash
 bash stop.sh
@@ -351,7 +351,7 @@ bash stop.sh
 
 ### 其他脚本使用
 
-#### 单张图片检测
+  单张图片检测
 
 ```bash
 python scripts/predict_image.py
@@ -359,7 +359,7 @@ python scripts/predict_image.py
 
 修改脚本中的 `image_path` 变量指向目标图片，结果输出到 `analysis/image_predictions/result.jpg`。
 
-#### 视频文件检测
+  视频文件检测
 
 ```bash
 python scripts/predict_video.py
@@ -367,7 +367,7 @@ python scripts/predict_video.py
 
 输入 `demo_videos/1.mp4`，输出带标注的结果视频到 `analysis/video_predictions/`，按ESC退出。
 
-#### 本地摄像头实时检测（需显示器）
+  本地摄像头实时检测（需显示器）
 
 ```bash
 DISPLAY=:0 python scripts/predict_webcam.py
@@ -375,7 +375,7 @@ DISPLAY=:0 python scripts/predict_webcam.py
 
 按ESC退出。该脚本与Web版共用CSI摄像头和YOLOv11模型，但不包含GPIO控制逻辑。
 
-#### 导出ONNX模型
+  导出ONNX模型
 
 ```bash
 python scripts/export_onnx.py
